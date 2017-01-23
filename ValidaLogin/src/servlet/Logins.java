@@ -3,6 +3,7 @@ package servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -17,6 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
+import fotogramas.modelo.beans.BeanError;
+
 
 @WebServlet(name="ValidaLogin",urlPatterns="/login")
 public class Logins extends HttpServlet {
@@ -27,7 +30,7 @@ public class Logins extends HttpServlet {
 	
 	private String login;
 	private String clave;
-	private String nombre;
+	private String nombre ="";
 	
 	
     /**
@@ -62,27 +65,62 @@ public class Logins extends HttpServlet {
     	}
 
     }
-    
+	/**
+	 * Procesamiento de peticiones GET
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
+	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doPost(request,response);
 	}
-	
+	/**
+	 * Procesamiento de peticiones POST
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String nombre = request.getParameter("nombre");
+
 		String login = request.getParameter("login");
 		String clave = request.getParameter("clave");
+		boolean control = true;
 		
-		response.setContentType(CONTENT_TYPE);
+		Connection conexion = null;
+		Statement st = null;
+		ResultSet rs = null;
 		PrintWriter out = response.getWriter();
-		out.write("<html>");
-		out.write("<head><title>Logins</title></head>");
-		out.write("<body><p>");
-		out.write("//nombreAp\\");
-		out.write("<br>");
-		out.write("Usted se ha registrado con el usuario: "+ "//Prueba\\ login");
-		out.write("</body>");
-		out.write("</html>");
-		out.close();
+		try {
+			conexion = dsLogins.getConnection();
+			st = conexion.createStatement();
+			rs = st.executeQuery("select login,clave from usuarios where login = '"+login+"'");
+			if (rs.next()) {
+				if (!rs.getString("clave").equals(clave)) {
+					out.write("La clave no coincide.");
+					control = false;
+				}
+			}
+			else
+			{
+				out.write("El login no existe.");
+				control = false;
+			}
+		} catch (SQLException e) {
+			out.write("Error en conexión a base de datos");
+			control = false;
+		
+		}
+		
+		if (control == true){
+			response.setContentType(CONTENT_TYPE);
+			
+			out.write("<html>");
+			out.write("<head><title>Logins</title></head>");
+			out.write("<body><p>");
+			out.write("//nombreAp\\");out.write("<br>");
+			out.write(nombre);
+			out.write("<br>");
+			out.write("Usted se ha logueado con el usuario: "+ "//Prueba\\ login");
+			out.write("<br>");
+			out.write("</body>");
+			out.write("</html>");
+			out.close();
+		}
 	}
-    
 }
