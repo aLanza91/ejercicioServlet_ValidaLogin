@@ -77,9 +77,9 @@ public class Logins extends HttpServlet {
 		out.write("<html>");
 		out.write("<head><title>Logins</title></head>");
 		out.write("<body><p>");
-		out.write(nombreAp);
+		out.write("//nombreAp\\");
 		out.write("<br>");
-		out.write("Usted se ha registrado con el usuario: "+ login);
+		out.write("Usted se ha registrado con el usuario: "+ "//Prueba\\ login");
 		out.write("</body>");
 		out.write("</html>");
 		out.close();
